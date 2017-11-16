@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Header from './Header';
-import ContestPreview from './ContestPreview';
+import ContestList from './ContestList';
 
 export default class App extends React.Component {
   constructor(props) {
@@ -20,11 +20,7 @@ export default class App extends React.Component {
     return (
       <div className="App container">
         <Header message="Naming Contests" />
-        <div>
-          {
-            this.state.contests.map(contest => <ContestPreview key={contest.id} {...contest}/>)
-          }
-        </div>
+        <ContestList contests={this.state.contests}/>
       </div>
     );
   }

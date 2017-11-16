@@ -6,4 +6,3 @@ ReactDOM.hydrate(
   <App initialContests={window.initialContests.contests}/>,
   document.getElementById('root')
 );
-
