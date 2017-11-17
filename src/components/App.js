@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import * as api from '../api';
 import Header from './Header';
 import Contest from './Contest';
 import ContestList from './ContestList';
@@ -13,8 +14,7 @@ export default class App extends React.Component {
     super(props);
 
     this.state = {
-      contests: this.props.initialContests,
-      pageHeader: 'Naming Contests'
+      contests: this.props.initialData,
     };
 
     this.fetchContest = this.fetchContest.bind(this);
@@ -29,16 +29,32 @@ export default class App extends React.Component {
       { currentContestId: contestId },
       `/contest/${contestId}`
     );
-    this.setState({
-      pageHeader: this.state.contests[contestId].contestName,
-      currentContestId: contestId
+    api.fetchContest(contestId).then(contest => {
+      this.setState({
+        currentContestId: contest.id,
+        contests: {
+          ...this.state.contests,
+          [contest.id]: contest
+        }
+      });
     });
+  }
+
+  pageHeader() {
+    if (this.state.currentContestId) {
+      return this.currentContest().contestName;
+    }
+
+    return 'Naming Contest';
+  }
+
+  currentContest() {
+    return this.state.contests[this.state.currentContestId];
   }
 
   currentContent = () => {
     if (this.state.currentContestId ) {
-      const { currentContestId } = this.state;
-      return <Contest {...this.state.contests[currentContestId]}/>;
+      return <Contest {...this.currentContest}/>;
     }
 
     return <ContestList contests={this.state.contests} onContestClick={this.fetchContest}/>;
@@ -47,7 +63,7 @@ export default class App extends React.Component {
   render() {
     return (
       <div className="App container">
-        <Header message={this.state.pageHeader} />
+        <Header message={this.pageHeader()} />
         {
           this.currentContent()
         }
@@ -57,5 +73,5 @@ export default class App extends React.Component {
 }
 
 App.propTypes = {
-  initialContests: PropTypes.object.isRequired
+  initialData: PropTypes.object.isRequired
 };
