@@ -5,8 +5,12 @@ import Header from './Header';
 import Contest from './Contest';
 import ContestList from './ContestList';
 
-const pushState = (obj, url) => {
+const onPushState = (obj, url) => {
   window.history.pushState(obj, '', url);
+};
+
+const onPopState = handler => {
+  window.onpopstate = handler;
 };
 
 export default class App extends React.Component {
@@ -19,11 +23,15 @@ export default class App extends React.Component {
   }
 
   componentDidMount() {
-
+    onPopState((event) => {
+      this.setState({
+        currentContestId: (event.state || {}).currentContestId
+      });
+    });
   }
 
   fetchContest = (contestId) => {
-    pushState(
+    onPushState(
       { currentContestId: contestId },
       `/contest/${contestId}`
     );
@@ -34,6 +42,19 @@ export default class App extends React.Component {
           ...this.state.contests,
           [contest.id]: contest
         }
+      });
+    });
+  }
+
+  fetchContestList = () => {
+    onPushState(
+      { currentContestId: null },
+      '/'
+    );
+    api.fetchContestList().then(contests => {
+      this.setState({
+        currentContestId: null,
+        contests
       });
     });
   }
@@ -52,7 +73,9 @@ export default class App extends React.Component {
 
   currentContent = () => {
     if (this.state.currentContestId) {
-      return <Contest {...this.currentContest()}/>;
+      return <Contest 
+        fetchContestList={this.fetchContestList} 
+        {...this.currentContest()}/>;
     }
 
     return <ContestList contests={{...this.state.contests}} onContestClick={this.fetchContest}/>;
