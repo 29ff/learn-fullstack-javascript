@@ -54,10 +54,10 @@ export default class App extends React.Component {
 
   currentContent = () => {
     if (this.state.currentContestId ) {
-      return <Contest {...this.currentContest}/>;
+      return <Contest {...this.currentContest()}/>;
     }
 
-    return <ContestList contests={this.state.contests} onContestClick={this.fetchContest}/>;
+    return <ContestList {...this.state.contests} onContestClick={this.fetchContest}/>;
   }
 
   render() {

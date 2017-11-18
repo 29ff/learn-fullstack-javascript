@@ -8,6 +8,7 @@ export default class ContestPreview extends React.Component {
     this.handleClick = this.handleClick.bind(this);
   }
 
+  
   handleClick() {
     this.props.onClick(this.props.id);
   }
