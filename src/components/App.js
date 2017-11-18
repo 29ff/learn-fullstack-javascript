@@ -13,9 +13,7 @@ export default class App extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      contests: this.props.initialData,
-    };
+    this.state = this.props.initialData;
 
     this.fetchContest = this.fetchContest.bind(this);
   }
@@ -53,11 +51,11 @@ export default class App extends React.Component {
   }
 
   currentContent = () => {
-    if (this.state.currentContestId ) {
+    if (this.state.currentContestId) {
       return <Contest {...this.currentContest()}/>;
     }
 
-    return <ContestList {...this.state.contests} onContestClick={this.fetchContest}/>;
+    return <ContestList contests={{...this.state.contests}} onContestClick={this.fetchContest}/>;
   }
 
   render() {
