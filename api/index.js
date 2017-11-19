@@ -1,25 +1,40 @@
 import express from 'express';
-import data from '../src/testData';
+import { MongoClient } from 'mongodb';
+import assert from 'assert';
+import config from '../config';
 
 const router = express.Router();
 
-const contests = data.contests.reduce((obj, contest) => {
-  obj[contest.id] = contest;
-  return obj;
-}, {});
+let mdb = {};
+MongoClient.connect(config.mongodbUri, (err, db) => {
+  assert.equal(null, err);
+  mdb = db;
+});
 
 router.get('/contests', (req, res) => {
-  res.send({ contests });
+  let contests = {};
+  mdb.collection('contests').find({})
+    .project({
+      id: 1,
+      categoryName: 1, 
+      contestName: 1
+    })
+    .each((err, contest) => {
+      assert.equal(null, err);
+      if (!contest) {
+        res.send({ contests });
+        return;
+      }
+
+      contests[contest.id] = contest;
+    });
 });
 
 router.get('/contests/:contestId', (req, res) => {
-  let contest = contests[req.params.contestId];
-  const data = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse iaculis augue sed massa luctus suscipit. Mauris porta fringilla justo, sit amet posuere nibh efficitur non. Aliquam sed ex vel mi porta pulvinar a vel eros. Maecenas sagittis felis vitae ante interdum suscipit pellentesque eu massa. Interdum et malesuada fames ac ante ipsum primis in faucibus. Etiam volutpat velit sit amet ipsum lobortis, a maximus dui feugiat. Nulla tellus est, congue et est ac, dignissim egestas ipsum. Maecenas efficitur lorem id enim finibus fringilla.
-
-  Aenean ultricies commodo sapien, malesuada condimentum lectus condimentum id. Quisque eget pulvinar ante. Mauris bibendum nisi eget sem finibus rutrum. Suspendisse dapibus ipsum quis quam sagittis, sed dictum nisl auctor. Cras dictum tortor id tellus laoreet fermentum. Suspendisse potenti. Sed faucibus dolor nibh, quis ultricies leo volutpat eu. Ut tempus ligula laoreet enim tristique, a volutpat est aliquam. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nullam dui dolor, luctus in iaculis eu, convallis ac massa.`;
-  contest.description = data;
-
-  res.send(contest);
+  mdb.collection('contests')
+    .findOne(({ id: +req.params.contestId }))
+    .then(contest => res.send(contest))
+    .catch(err => console.error(err));
 });
 
 export default router;

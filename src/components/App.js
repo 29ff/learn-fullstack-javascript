@@ -24,9 +24,12 @@ export default class App extends React.Component {
 
   componentDidMount() {
     onPopState((event) => {
-      this.setState({
-        currentContestId: (event.state || {}).currentContestId
-      });
+      if ((event.state || {}).currentContestId === null) {
+        this.fetchContestList();
+        this.setState({
+          currentContestId: (event.state || {}).currentContestId
+        });
+      }
     });
   }
 
