@@ -24,10 +24,10 @@ export default class App extends React.Component {
 
   componentDidMount() {
     onPopState((event) => {
-      if ((event.state || {}).currentContestId === null) {
+      if ((event.state || {}).currentContestId === null || !event.state) {
         this.fetchContestList();
         this.setState({
-          currentContestId: (event.state || {}).currentContestId
+          currentContestId: null
         });
       }
     });
@@ -62,6 +62,26 @@ export default class App extends React.Component {
     });
   }
 
+  fetchNames = nameIds => {
+    if (nameIds.length === 0) {
+      return;
+    }
+    api.fetchNames(nameIds).then(names => {
+      this.setState({
+        names
+      });
+    });
+  }
+
+  lookupName = nameId => {
+    if (!this.state.names || !this.state.names[nameId]) {
+      return {
+        name: '...'
+      };
+    }
+    return this.state.names[nameId];
+  }
+
   pageHeader() {
     if (this.state.currentContestId) {
       return this.currentContest().contestName;
@@ -77,7 +97,9 @@ export default class App extends React.Component {
   currentContent = () => {
     if (this.state.currentContestId) {
       return <Contest 
-        fetchContestList={this.fetchContestList} 
+        fetchContestList={this.fetchContestList}
+        fetchNames={this.fetchNames}
+        lookupName={this.lookupName}
         {...this.currentContest()}/>;
     }
 
