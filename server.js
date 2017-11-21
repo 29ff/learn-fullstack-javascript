@@ -1,9 +1,12 @@
 import path from 'path';
 import sassMiddleware from 'node-sass-middleware';
+import bodyParser from 'body-parser';
+import express from 'express';
 import config from './config';
 import apiRouter from './api';
-import express from 'express';
 const server = express();
+
+server.use(bodyParser.json());
 
 // use middleware for express server
 server.use(sassMiddleware({
